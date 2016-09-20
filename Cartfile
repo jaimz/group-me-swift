@@ -1,0 +1,5 @@
+github "Alamofire/Alamofire" ~> 3.3
+github "Alamofire/AlamofireImage" ~> 2.0
+github "SwiftyJSON/SwiftyJSON" ~> 2.3.0
+github "facebook/SocketRocket"
+github "rs/SDWebImage"
