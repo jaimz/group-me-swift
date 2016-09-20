@@ -11,14 +11,23 @@ import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
     var window: UIWindow?
 
-
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        if let w = self.window {
+            w.rootViewController = Services.instance.navigator;
+            w.makeKeyAndVisible()
+
+            GroupMe.instance.connect()
+            
+        } else {
+            print("!!!!! Could not create app window?")
+        }
+
         return true
     }
+
 
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -43,6 +52,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Saves changes in the application's managed object context before the application terminates.
         self.saveContext()
     }
+
+
+
+    // MARK: Deep linking
+
+    func application(app: UIApplication, openURL url: NSURL, options: [String : AnyObject]) -> Bool {
+        let api = GroupMe.instance.API
+
+        if (url.scheme.lowercaseString != api.deepLinkScheme) {
+            return false
+        }
+
+        if let components = NSURLComponents(URL: url, resolvingAgainstBaseURL: false),
+            path = components.path, items = components.queryItems where path == api.oauthPath {
+            for item in items {
+                if item.name == api.accessTokenName {
+                    GroupMe.instance.didAuthenticate(item.value)
+                }
+            }
+        } else {
+            if let components = NSURLComponents(URL: url, resolvingAgainstBaseURL: false) {
+                print("!!!!! \(components.path)")
+            } else {
+                print("!!!!! Couldn't make components!")
+            }
+        }
+
+        return true
+    }
+
+
 
     // MARK: - Core Data stack
 
